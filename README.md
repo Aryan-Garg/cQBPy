@@ -63,7 +63,7 @@ sr_denoised = results['sr_denoised']
 
 ---
 
-## 🔧 Key Components to Implement
+## Key Components to Implement
 
 ### 1. **Multi-Scale Optical Flow** (`alignment.py`)
 
@@ -220,7 +220,7 @@ Hot pixels bias alignment toward zero flow, causing blur.
 
 ---
 
-## 📊 Parameter Guide
+## Parameter Guide
 
 ### Core Parameters
 
@@ -260,7 +260,7 @@ Hot pixels bias alignment toward zero flow, causing blur.
 
 ---
 
-## 🔬 Mathematical Details
+## Mathematical Details
 
 ### Imaging Model
 
@@ -294,7 +294,7 @@ Where:
 
 ---
 
-## 🎯 Optimization Tips
+## Optimization Tips
 
 ### 1. Vectorization
 
@@ -345,7 +345,7 @@ with Pool(num_cores) as pool:
 
 ---
 
-## 📚 Dependencies
+## Dependencies
 
 ```txt
 numpy>=1.21.0
@@ -363,7 +363,7 @@ pip install numpy scipy opencv-python scikit-image numba bm3d
 
 ---
 
-## 🧪 Testing & Validation
+## Testing & Validation
 
 ### Compare with MATLAB
 
@@ -394,7 +394,7 @@ Test on simulated data from paper:
 
 ---
 
-## 📖 References
+## References
 
 ### Primary Paper
 ```bibtex
@@ -417,7 +417,7 @@ Test on simulated data from paper:
 ---
 
 
-## 🐛 Known Issues & TODOs
+## Known Issues & TODOs
 
 ### High Priority
 - [ ] Implement full Lucas-Kanade optical flow
@@ -439,7 +439,7 @@ Test on simulated data from paper:
 
 ---
 
-## 💡 Usage Examples
+## Usage Examples
 
 ### Example 1: Process Real SPAD Data
 ```python
@@ -472,22 +472,10 @@ results = pipeline.run(imbs)
 
 ---
 
-## 🤝 Contributing
 
-This is a research implementation. Contributions welcome:
-1. Implement missing components from TODOs
-2. Add unit tests
-3. Optimize performance
-4. Add visualization tools
-
----
-
-## 📧 Contact
+## Contact
 
 For questions about the algorithm, refer to the original paper.  
 For implementation issues, please open a GitHub issue here.
 
 ---
-
-**Last Updated:** February 2026
-
