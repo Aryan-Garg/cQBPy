@@ -1,5 +1,5 @@
 import numpy as np
-import hd5py
+import h5py
 from typing import Tuple, Optional
 from skimage.metrics import structural_similarity as ssim
 import cv2
@@ -7,20 +7,32 @@ import cv2
 
 def load_mat_data(filepath: str) -> dict:
     """
-        Load .mat file and extract quanta data using hd5py.
+        Load .mat file and extract quanta data using h5py.
         NOTE: This function assumes the .mat file is in HDF5 format, which is common for MATLAB v7.3 and later.
     """
-    with hd5py.File(filepath, 'r') as f:
+    with h5py.File(filepath, 'r') as f:
         data = {}
         for key in f.keys():
-            data[key] = f[key][()]
+            data[key] = np.array(f[key])
         return data
 
 
 def load_npy_data(filepath: str) -> dict:
     """Load .npy file containing quanta data"""
-    return np.load(filepath, allow_pickle=True).item()
+    return {"imbs": np.load(filepath, allow_pickle=True).item()}
 
+
+def load_mp4_video(filepath: str) -> np.ndarray:
+    """Load video from .mp4 file and return as a numpy array"""
+    cap = cv2.VideoCapture(filepath)
+    frames = []
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            break
+        frames.append(frame)
+    cap.release()
+    return {"imbs": np.array(frames)}
 
 
 def save_results(filepath: str, results: dict):
@@ -54,7 +66,6 @@ def visualize_flow(flow: np.ndarray) -> np.ndarray:
 
 if __name__ == "__main__":
     data = load_mat_data('dataBayer_0121_1.mat')
-    print(data['imbs'].shape)
-    assert data['imbs'].shape == (H, W, T)
-    print(data['imbs'].dtype)
-    assert data['imbs'].dtype == bool or data['imbs'].dtype == np.uint8
+    
+    print("[+] Data shape (THW):", data['imbs'].shape)
+    print("[+] Data dtype:",       data['imbs'].dtype)
