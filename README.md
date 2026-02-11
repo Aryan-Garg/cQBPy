@@ -358,7 +358,7 @@ bm3d>=4.0.0  # For BM3D denoising
 
 Install:
 ```bash
-pip install numpy scipy opencv-python scikit-image numba bm3d
+pip install numpy scipy opencv-python scikit-image numba bm3d matplotlib
 ```
 
 ---
