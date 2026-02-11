@@ -345,21 +345,25 @@ with Pool(num_cores) as pool:
 
 ---
 
-## Dependencies
+## Setup & Dependencies
 
-```txt
-numpy>=1.21.0
-scipy>=1.7.0
-opencv-python>=4.5.0  # For optical flow utilities
-scikit-image>=0.18.0
-numba>=0.54.0  # Optional: for JIT acceleration
-bm3d>=4.0.0  # For BM3D denoising
-```
+**Using the given env file:**
 
-Install:
 ```bash
-pip install numpy scipy opencv-python scikit-image numba bm3d matplotlib
+conda env create -f environment.yml
 ```
+
+**Manual:**
+
+```bash
+conda create --name cqbpy python=3.12
+```
+
+```bash
+pip install numpy scipy opencv-python scikit-image numba bm3d matplotlib h5py
+```
+
+
 
 ---
 
