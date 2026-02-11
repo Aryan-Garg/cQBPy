@@ -1,7 +1,7 @@
 # Fast Python Implementation of Color Quanta Burst Photography (cQBP)
 from *Seeing Photons in Color* (Ma et al., SIGGRAPH 2023)
 
-> By Aryan Garg
+> By Aryan Garg, Avery Gump
 
 ## Overview
 
@@ -477,5 +477,6 @@ results = pipeline.run(imbs)
 
 For questions about the algorithm, refer to the original paper.  
 For implementation issues, please open a GitHub issue here.
+
 
 ---
