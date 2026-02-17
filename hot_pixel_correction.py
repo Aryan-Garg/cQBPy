@@ -1,3 +1,5 @@
+import numpy as np
+
 def identify_hot_pixels(dcr_map: np.ndarray, threshold: float = 30.0) -> np.ndarray:
     """
     Identify hot pixels from DCR calibration
@@ -12,7 +14,7 @@ def identify_hot_pixels(dcr_map: np.ndarray, threshold: float = 30.0) -> np.ndar
     return dcr_map > threshold
 
 
-def precompute_neighbor_lists(hot_pixel_mask: np.ndarray,
+def precompute_k_valid_neighbors(hot_pixel_mask: np.ndarray,
                               cfa_pattern: np.ndarray,
                               k: int = 3) -> dict:
     """
@@ -84,3 +86,32 @@ def correct_hot_pixels(imbs: np.ndarray,
             corrected[y, x, t] = imbs[ny, nx, t]
     
     return corrected
+
+
+if __name__ == "__main__":
+    ### Test:
+    H, W = 8, 8
+    hot_mask = np.random.rand(H, W) > 0.97  # 3% hot pixels
+
+    # Create dummy CFA
+    cfa = np.mod(np.arange(H*W).reshape(H,W), 3)
+
+    # Test neighbor finding
+    neighbors = precompute_k_valid_neighbors(hot_mask, cfa, k=3)
+    # assert all(len(v) == 3 for v in neighbors.values())
+
+    # Test correction
+    imbs = np.random.rand(H, W, 100) > 0.90
+    corrected = correct_hot_pixels(imbs, neighbors)
+    
+    import matplotlib.pyplot as plt
+    plt.subplot(1, 3, 1)
+    plt.title("Og w HP")
+    plt.imshow(imbs[:, :, 0], cmap='gray')
+    plt.subplot(1, 3, 2)
+    plt.title("HP Mask")
+    plt.imshow(hot_mask, cmap='gray')
+    plt.subplot(1, 3, 3)
+    plt.title("Corrected")
+    plt.imshow(corrected[:, :, 0], cmap='gray')
+    plt.savefig("hot_pixel_correction_test.png")
