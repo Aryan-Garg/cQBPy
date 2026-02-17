@@ -11,15 +11,18 @@ def identify_hot_pixels(dcr_map: np.ndarray, threshold: float = 30.0) -> np.ndar
     """
     return dcr_map > threshold
 
+
 def precompute_neighbor_lists(hot_pixel_mask: np.ndarray,
                               cfa_pattern: np.ndarray,
-                              k: int = 5) -> dict:
+                              k: int = 3) -> dict:
     """
-    For each hot pixel, find k-nearest non-hot pixels with same color
+    For each hot pixel, find k-nearest non-hot pixels with same color.
+    NOTE: This fn assumes CFA pattern to be bayer. 
+    RGBW pattern from the paper is not supported as the color sensor employs a regular Bayer pattern.
     
     Args:
         hot_pixel_mask: Binary mask of hot pixels [H, W]
-        cfa_pattern: CFA pattern [H, W] where 0=R, 1=G, 2=B, 3=W
+        cfa_pattern: CFA pattern [H, W] where 0=R, 1=G, 2=B
         k: Number of neighbors
         
     Returns:
@@ -31,9 +34,10 @@ def precompute_neighbor_lists(hot_pixel_mask: np.ndarray,
     H, W = hot_pixel_mask.shape
     
     # For each color channel
-    for color in range(4):
+    for color in range(3):
         # Find hot pixels of this color
         hot_of_color = hot_pixel_mask & (cfa_pattern == color)
+
         # Find non-hot pixels of this color
         non_hot_of_color = (~hot_pixel_mask) & (cfa_pattern == color)
         
@@ -53,6 +57,7 @@ def precompute_neighbor_lists(hot_pixel_mask: np.ndarray,
             neighbor_dict[(hy, hx)] = [tuple(coord) for coord in neighbor_coords]
     
     return neighbor_dict
+
 
 def correct_hot_pixels(imbs: np.ndarray,
                       neighbor_dict: dict,
