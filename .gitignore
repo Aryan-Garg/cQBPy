@@ -1,6 +1,7 @@
+*.pkl
 *.png
 *.jpg
 *.mat
 *.npy
 __pycache__/**
-
+.DS_STORE
