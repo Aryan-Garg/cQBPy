@@ -72,9 +72,7 @@ The alignment step is critical for motion compensation:
 **Algorithm:**
 1. Divide binary frames into temporal blocks
 2. Sum frames in each block → multi-bit block-sum images
-3. Convert mosaicked block-sums to grayscale:
-   - For 75% W CFAs: interpolate W channel directly
-   - For other CFAs: use universal demosaicing
+3. Convert mosaicked block-sums to grayscale (universal demosaicing)
 4. Build Gaussian pyramid for coarse-to-fine matching
 5. Lucas-Kanade optical flow at each pyramid level
 6. Interpolate block-level flow to frame level
@@ -107,7 +105,7 @@ For each pixel (x, y) in reference frame:
 2. Compute weighted sum:
 
 ```python
-S_c(x,y) = Σ(w_i · S_ci) / Σ(w_i)  # For channel c ∈ {R,G,B,W}
+S_c(x,y) = Σ(w_i · S_ci) / Σ(w_i)  # For channel c ∈ {R,G,B}
 ```
 
 Where weight w_i = w_Gi · w_Ri consists of:
@@ -125,13 +123,6 @@ R = clamp(s · exp(-(x - μ_s)^2 / (s_c · (σ_s^2 + σ_b^2))), 0, 1)
 
 # σ_b accounts for binomial noise:
 σ_b = sqrt((S/T) · (1 - S/T) / T)
-```
-
-**Combine RGBW channels:**
-```python
-# Scale RGB to match W:
-k(x,y) = W(x,y) / (w_R·R + w_G·G + w_B·B)
-RGB_final = k · RGB_raw
 ```
 
 **Reference:** Section 4.2 of main paper, Supplementary Sections 1.2-1.3
