@@ -144,10 +144,6 @@ Where:
 - Ω_c: Set of pixels with color filter c
 - λ: Data fidelity weight
 
-**For RGBW with 75% W:** Can simplify by interpolating W, then using constraint:
-```
-w_R·R + w_G·G + w_B·B = W
-```
 
 **Reference:** Condat 2009 (cited in paper), Supplementary Section 1.3
 
@@ -160,13 +156,7 @@ w_R·R + w_G·G + w_B·B = W
 **Algorithm:**
 
 1. **Transform to YCbCr:**
-```python
-# Modified YCbCr where Y = weighted sum of W:
-k_R, k_G, k_B = normalize(w_R, w_G, w_B)
-Y = k_R·R + k_G·G + k_B·B  # ≈ W channel (high SNR)
-Cb = (B - Y) / (2(1 - k_B))
-Cr = (R - Y) / (2(1 - k_R))
-```
+
 
 2. **Apply Anscombe transform** (convert binomial → Gaussian noise):
 ```python
@@ -174,11 +164,6 @@ Z = 2 · sqrt(I + 3/8)
 ```
 
 3. **BM3D with channel-specific σ:**
-```python
-σ_Y = 80    # Lower noise (from W pixels)
-σ_Cb = 150  # Higher noise (from sparse RGB)
-σ_Cr = 150
-```
 
 4. **Inverse Anscombe transform:**
 ```python
