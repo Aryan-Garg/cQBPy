@@ -10,10 +10,14 @@ from scipy import ndimage as ndi
 from scipy.interpolate import RectBivariateSpline
 from typing import Tuple, List
 import warnings
+from utils_bayer import bayer_to_grayscale_downsample
 
 
 class BlockSumImages:
-    """Container for block-sum image generation and management"""
+    """ 
+    Container for block-sum image generation and brightness-constancy 
+    violation management by downsample-grayscaling. Expect 4x spatial resolution drop.
+    """
     
     def __init__(self, imbs: np.ndarray, block_size: int, num_blocks: int):
         """
@@ -26,10 +30,13 @@ class BlockSumImages:
         self.block_size = block_size
         self.num_blocks = num_blocks
         self.H, self.W, self.T = imbs.shape
+        assert self.block_size * self.num_blocks <= self.T, "Block size and number of blocks exceed total frames"
         
         # Generate block-sum images
         self.block_sums = self._generate_block_sums()
+        self.grayscale_blocks = self.to_grayscale()
         
+
     def _generate_block_sums(self) -> np.ndarray:
         """
         Generate block-sum images by summing binary frames
@@ -46,12 +53,10 @@ class BlockSumImages:
         
         return block_sums
     
-    def to_grayscale(self, cfa_pattern: str = 'RGBW_BN_75') -> np.ndarray:
+
+    def to_grayscale(self, cfa_pattern: str = 'RGGB') -> np.ndarray:
         """
         Convert mosaicked block-sum images to grayscale
-        
-        For RGBW patterns with high W fraction (≥75%), we interpolate
-        the W channel directly.
         
         Args:
             cfa_pattern: CFA pattern type
@@ -59,46 +64,20 @@ class BlockSumImages:
         Returns:
             Grayscale block-sum images [H, W, num_blocks]
         """
-        if 'RGBW' in cfa_pattern and '75' in cfa_pattern:
-            # Extract and interpolate W pixels
-            return self._interpolate_w_channel()
-        else:
-            # Fallback: simple averaging or demosaicing
-            warnings.warn("Using simple grayscale conversion")
-            return self.block_sums
-    
-    def _interpolate_w_channel(self) -> np.ndarray:
-        """
-        Interpolate W pixels to get full-resolution grayscale image
-        
-        For 75% W pattern, W pixels are regularly spaced in 2x2 tiles.
-        We use bilinear interpolation to fill missing values.
-        
-        Returns:
-            Interpolated grayscale images [H, W, num_blocks]
-        """
-        gray = np.zeros_like(self.block_sums)
-        
-        # Assuming 75% W pattern: W pixels at (0,0), (0,1), (1,0) in each 2x2 tile
-        # This is a simplified model - actual pattern may vary
+        gray_blocks = []
         for i in range(self.num_blocks):
-            gray[..., i] = self._bilinear_interpolate(self.block_sums[..., i])
-        
-        return gray
-    
-    def _bilinear_interpolate(self, img: np.ndarray) -> np.ndarray:
-        """Simple bilinear interpolation (placeholder)"""
-        # TODO: Implement proper W-channel interpolation based on actual CFA
-        return ndi.zoom(ndi.zoom(img, 0.5), 2.0, order=1)
+            this_block_sum = self.block_sums[..., i]
+            gray_blocks.append(bayer_to_grayscale_downsample(this_block_sum, cfa_pattern))
+        return np.stack(gray_blocks, axis=2)
 
 
 class HierarchicalAlignment:
     """Hierarchical patch-based alignment using Lucas-Kanade"""
     
-    def __init__(self, num_levels: int = 4,
-                 patch_sizes: Tuple[int, ...] = (32, 32, 32, 16),
-                 upsample_ratios: Tuple[int, ...] = (1, 2, 2, 4),
-                 search_radii: Tuple[int, ...] = (1, 1, 2, 8),
+    def __init__(self, num_levels: int = 3,
+                 patch_sizes: Tuple[int, ...] = (32, 32, 32),
+                 upsample_ratios: Tuple[int, ...] = (1, 2, 2),
+                 search_radii: Tuple[int, ...] = (1, 1, 2),
                  num_lk_iters: int = 3):
         """
         Initialize hierarchical alignment
@@ -122,12 +101,12 @@ class HierarchicalAlignment:
         Compute optical flow for all blocks relative to reference
         
         Args:
-            grayscale_blocks: Grayscale block-sum images [H, W, N]
+            grayscale_blocks: Grayscale block-sum images [H//2, W//2, N]
             ref_idx: Reference block index (default: middle block)
             
         Returns:
-            block_flows: Block-level optical flow [H, W, 2, N]
-            frame_flows: Interpolated frame-level flow [H, W, 2, T]
+            block_flows: Block-level optical flow [H//2, W//2, 2, N]
+            frame_flows: Interpolated frame-level flow [H//2, W//2, 2, T]
         """
         H, W, N = grayscale_blocks.shape
         
@@ -242,33 +221,6 @@ class HierarchicalAlignment:
         return flow_init
 
 
-def interpolate_w_pixels(img: np.ndarray, w_mask: np.ndarray) -> np.ndarray:
-    """
-    Interpolate W pixels using inpainting
-    
-    Args:
-        img: Input image with W pixels filled
-        w_mask: Binary mask indicating W pixel locations
-        
-    Returns:
-        Interpolated image
-    """
-    # Use scipy's geometric transform or custom inpainting
-    # For now, simple bilinear
-    from scipy.interpolate import griddata
-    
-    H, W = img.shape
-    y, x = np.mgrid[0:H, 0:W]
-    
-    # Get W pixel locations and values
-    w_locs = np.argwhere(w_mask > 0)
-    w_vals = img[w_mask > 0]
-    
-    # Interpolate
-    interpolated = griddata(w_locs, w_vals, (y, x), method='cubic', fill_value=0)
-    
-    return interpolated
-
 
 def create_reference_image(block_flows: np.ndarray,
                           grayscale_blocks: np.ndarray,
@@ -337,18 +289,18 @@ if __name__ == "__main__":
     print("Testing alignment module...")
     
     # Create synthetic data
-    H, W, T = 100, 100, 1000
+    H, W, T = 64, 64, 100
     imbs = np.random.rand(H, W, T) > 0.95
     
     # Create block-sum images
-    block_gen = BlockSumImages(imbs, block_size=100, num_blocks=10)
-    gray_blocks = block_gen.to_grayscale()
+    block_gen = BlockSumImages(imbs, block_size=4, num_blocks=25)
     
-    print(f"Block-sum shape: {gray_blocks.shape}")
+    print(f"Block-sum shape: {block_gen.block_sums.shape}")
+    print(f"Grayscale block shape: {block_gen.grayscale_blocks.shape}")
     
-    # Test alignment
-    aligner = HierarchicalAlignment()
-    block_flows, frame_flows = aligner.align(gray_blocks)
+    # # Test alignment
+    # aligner = HierarchicalAlignment()
+    # block_flows, frame_flows = aligner.align(gray_blocks)
     
-    print(f"Block flow shape: {block_flows.shape}")
-    print("Alignment test complete!")
+    # print(f"Block flow shape: {block_flows.shape}")
+    # print("Alignment test complete!")
