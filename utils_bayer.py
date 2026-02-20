@@ -66,7 +66,7 @@ def bayer_to_grayscale_downsample(block_sum: np.ndarray,
     
     # Vectorized downsampling
     # Reshape to group 2x2 tiles
-    reshaped = block_sum.reshape(H_down, 2, W_down, 2)
+    reshaped = block_sum.reshape(H_down, 2, W_down, 2) 
     
     # Average over each tile (R + G + G + B) / 4
     gray = np.mean(reshaped, axis=(1, 3))
