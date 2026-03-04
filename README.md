@@ -1,8 +1,6 @@
 # Fast Python Implementation of Color Quanta Burst Photography (cQBP)
 from *Seeing Photons in Color* (Ma et al., SIGGRAPH 2023)
 
-> By Aryan Garg, Avery Gump
-
 ## Overview
 
 This repository contains a Python reimplementation of the MATLAB codebase for color single-photon avalanche diode (SPAD) burst photography. The pipeline processes mosaicked binary quanta images to produce high-quality color reconstructions.
@@ -14,8 +12,6 @@ This repository contains a Python reimplementation of the MATLAB codebase for co
 3. **Joint Demosaicking & Merging** - Robust temporal fusion with color recovery
 4. **Super-Resolution** (optional) - Higher resolution reconstruction
 5. **Post-Processing** - Chrominance-focused BM3D denoising
-
-
 
 ---
 
