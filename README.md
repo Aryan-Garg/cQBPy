@@ -372,7 +372,7 @@ Test on simulated data from paper:
 
 ## References
 
-### Primary Paper
+### Paper
 ```bibtex
 @article{ma2023seeing,
   title={Seeing Photons in Color},
@@ -389,29 +389,6 @@ Test on simulated data from paper:
 2. **Demosaicing:** Condat (2009) - Universal variational demosaicing
 3. **Denoising:** BM3D (Dabov et al. 2007)
 4. **Wiener Merging:** Hasinoff et al. (2016) - Burst photography for HDR
-
----
-
-
-## Known Issues & TODOs
-
-### High Priority
-- [ ] Implement full Lucas-Kanade optical flow
-- [ ] Implement universal demosaicing (Condat's algorithm)
-- [ ] Implement robust weighting for joint merge
-- [ ] Add BM3D integration (use `bm3d` package)
-- [ ] Hot pixel correction preprocessing
-
-### Medium Priority
-- [ ] Super-resolution implementation
-- [ ] Flow refinement iteration
-- [ ] Visualization tools (flow fields, error maps)
-- [ ] Batch processing utilities
-
-### Low Priority
-- [ ] GPU acceleration (CuPy)
-- [ ] Alternative demosaicing methods
-- [ ] Interactive parameter tuning GUI
 
 ---
 
