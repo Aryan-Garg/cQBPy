@@ -1,0 +1,42 @@
+{
+  "scene": {
+    "h": 96,
+    "w": 96,
+    "t": 40,
+    "seed": 123
+  },
+  "runtime_seconds": {
+    "python_pipeline": 1.2462224490000153,
+    "matlab_parity": 2.9873625550000042
+  },
+  "psnr_to_gt_ref": {
+    "python_naive": 9.09802170351322,
+    "python_merged": 7.777010750437407,
+    "matlab_naive": 9.183256228414967,
+    "matlab_merged": 7.539388222858911
+  },
+  "numerical_closeness": {
+    "naive": {
+      "mae": 0.10123946923768631,
+      "rmse": 0.1639386218619879,
+      "max_abs": 0.7331710457801819,
+      "ncc": 0.8197121709568901,
+      "allclose_rtol1e-3_atol1e-5": false
+    },
+    "merged": {
+      "mae": 0.20267765005355892,
+      "rmse": 0.3199145832143492,
+      "max_abs": 0.9721201062202454,
+      "ncc": 0.64186150884017,
+      "allclose_rtol1e-3_atol1e-5": false
+    },
+    "flows": {
+      "mae": 0.0,
+      "rmse": 0.0,
+      "max_abs": 0.0,
+      "ncc": 1.0000000203543127,
+      "allclose_rtol1e-3_atol1e-5": true
+    }
+  },
+  "octave_stdout": ""
+}
